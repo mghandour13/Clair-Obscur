@@ -1,5 +1,10 @@
 # Simple GitHub Pages Video Page
 
+This page is intentionally minimal and now shows only two controls:
+- Play / Pause
+- Fullscreen
+
+No duration, no current time, and no progress bar are shown.
 This page is intentionally minimal: a full-screen video player, nothing else.
 
 ## Setup
