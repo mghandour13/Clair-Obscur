@@ -12,13 +12,6 @@
       background: #000;
       color: #fff;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      overflow: hidden;
-    }
-
-    #stage {
-      position: fixed;
-      inset: 0;
-      background: #000;
     }
 
     video {
@@ -27,36 +20,6 @@
       object-fit: contain;
       background: #000;
       display: block;
-    }
-
-    #controls {
-      position: fixed;
-      bottom: 1rem;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 0.6rem;
-      z-index: 5;
-      background: rgba(0, 0, 0, 0.45);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 999px;
-      padding: 0.45rem;
-      backdrop-filter: blur(3px);
-    }
-
-    button {
-      background: rgba(255, 255, 255, 0.12);
-      color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      border-radius: 999px;
-      padding: 0.55rem 0.95rem;
-      font-size: 0.95rem;
-      cursor: pointer;
-      min-width: 7rem;
-    }
-
-    button:hover {
-      background: rgba(255, 255, 255, 0.2);
     }
 
     #error {
@@ -74,16 +37,6 @@
   </style>
 </head>
 <body>
-  <main id="stage">
-    <video id="player" playsinline preload="metadata" disablepictureinpicture controlslist="nodownload noplaybackrate noremoteplayback"></video>
-
-    <div id="controls" aria-label="Video controls">
-      <button id="playPause" type="button" aria-label="Play video">Play</button>
-      <button id="fullscreen" type="button" aria-label="Enter fullscreen">Fullscreen</button>
-    </div>
-
-    <div id="error" role="alert"></div>
-  </main>
   <video id="player" controls playsinline preload="metadata"></video>
   <div id="error" role="alert"></div>
 
@@ -91,17 +44,12 @@
     const candidates = ['M4V00943.MP4', 'M4V00943.mp4', 'movie.mp4'];
     const player = document.getElementById('player');
     const error = document.getElementById('error');
-    const controls = document.getElementById('controls');
-    const playPauseBtn = document.getElementById('playPause');
-    const fullscreenBtn = document.getElementById('fullscreen');
 
     const trySource = async (src) => {
       player.src = src;
       player.load();
 
       await new Promise((resolve, reject) => {
-        const ok = () => { cleanup(); resolve(); };
-        const fail = () => { cleanup(); reject(new Error('Failed to load')); };
         const ok = () => {
           cleanup();
           resolve();
@@ -121,64 +69,10 @@
       });
     };
 
-    const updatePlayPauseLabel = () => {
-      if (player.paused) {
-        playPauseBtn.textContent = 'Play';
-        playPauseBtn.setAttribute('aria-label', 'Play video');
-      } else {
-        playPauseBtn.textContent = 'Pause';
-        playPauseBtn.setAttribute('aria-label', 'Pause video');
-      }
-    };
-
-    playPauseBtn.addEventListener('click', async () => {
-      try {
-        if (player.paused) {
-          await player.play();
-        } else {
-          player.pause();
-        }
-      } catch {
-        // ignore play interruption
-      }
-      updatePlayPauseLabel();
-    });
-
-    fullscreenBtn.addEventListener('click', async () => {
-      try {
-        if (!document.fullscreenElement) {
-          await document.documentElement.requestFullscreen();
-          fullscreenBtn.textContent = 'Exit Fullscreen';
-          fullscreenBtn.setAttribute('aria-label', 'Exit fullscreen');
-        } else {
-          await document.exitFullscreen();
-          fullscreenBtn.textContent = 'Fullscreen';
-          fullscreenBtn.setAttribute('aria-label', 'Enter fullscreen');
-        }
-      } catch {
-        // ignore fullscreen errors
-      }
-    });
-
-    document.addEventListener('fullscreenchange', () => {
-      if (document.fullscreenElement) {
-        fullscreenBtn.textContent = 'Exit Fullscreen';
-        fullscreenBtn.setAttribute('aria-label', 'Exit fullscreen');
-      } else {
-        fullscreenBtn.textContent = 'Fullscreen';
-        fullscreenBtn.setAttribute('aria-label', 'Enter fullscreen');
-      }
-    });
-
-    player.addEventListener('play', updatePlayPauseLabel);
-    player.addEventListener('pause', updatePlayPauseLabel);
-    player.addEventListener('ended', updatePlayPauseLabel);
-
     (async () => {
       for (const src of candidates) {
         try {
           await trySource(src);
-          updatePlayPauseLabel();
           return;
         } catch (_) {
           // try next source
@@ -186,7 +80,6 @@
       }
 
       player.style.display = 'none';
-      controls.style.display = 'none';
       error.style.display = 'flex';
       error.textContent = 'Video not found. Put M4V00943.MP4 in the repository root and wait for GitHub Pages to redeploy.';
     })();
