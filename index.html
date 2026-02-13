@@ -70,7 +70,6 @@
       background: #000;
       font-size: 1rem;
       line-height: 1.45;
-      z-index: 10;
     }
   </style>
 </head>
@@ -85,6 +84,8 @@
 
     <div id="error" role="alert"></div>
   </main>
+  <video id="player" controls playsinline preload="metadata"></video>
+  <div id="error" role="alert"></div>
 
   <script>
     const candidates = ['M4V00943.MP4', 'M4V00943.mp4', 'movie.mp4'];
@@ -101,6 +102,14 @@
       await new Promise((resolve, reject) => {
         const ok = () => { cleanup(); resolve(); };
         const fail = () => { cleanup(); reject(new Error('Failed to load')); };
+        const ok = () => {
+          cleanup();
+          resolve();
+        };
+        const fail = () => {
+          cleanup();
+          reject(new Error('Failed to load'));
+        };
         const cleanup = () => {
           clearTimeout(timeout);
           player.removeEventListener('loadedmetadata', ok);
@@ -182,5 +191,6 @@
       error.textContent = 'Video not found. Put M4V00943.MP4 in the repository root and wait for GitHub Pages to redeploy.';
     })();
   </script>
+  <video src="M4V00943.MP4" controls playsinline preload="metadata"></video>
 </body>
 </html>
