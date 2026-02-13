@@ -10,6 +10,8 @@
       width: 100%;
       height: 100%;
       background: #000;
+      color: #fff;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     }
 
     video {
@@ -17,10 +19,71 @@
       height: 100vh;
       object-fit: contain;
       background: #000;
+      display: block;
+    }
+
+    #error {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1rem;
+      background: #000;
+      font-size: 1rem;
+      line-height: 1.45;
     }
   </style>
 </head>
 <body>
+  <video id="player" controls playsinline preload="metadata"></video>
+  <div id="error" role="alert"></div>
+
+  <script>
+    const candidates = ['M4V00943.MP4', 'M4V00943.mp4', 'movie.mp4'];
+    const player = document.getElementById('player');
+    const error = document.getElementById('error');
+
+    const trySource = async (src) => {
+      player.src = src;
+      player.load();
+
+      await new Promise((resolve, reject) => {
+        const ok = () => {
+          cleanup();
+          resolve();
+        };
+        const fail = () => {
+          cleanup();
+          reject(new Error('Failed to load'));
+        };
+        const cleanup = () => {
+          clearTimeout(timeout);
+          player.removeEventListener('loadedmetadata', ok);
+          player.removeEventListener('error', fail);
+        };
+        const timeout = setTimeout(fail, 6000);
+        player.addEventListener('loadedmetadata', ok, { once: true });
+        player.addEventListener('error', fail, { once: true });
+      });
+    };
+
+    (async () => {
+      for (const src of candidates) {
+        try {
+          await trySource(src);
+          return;
+        } catch (_) {
+          // try next source
+        }
+      }
+
+      player.style.display = 'none';
+      error.style.display = 'flex';
+      error.textContent = 'Video not found. Put M4V00943.MP4 in the repository root and wait for GitHub Pages to redeploy.';
+    })();
+  </script>
   <video src="M4V00943.MP4" controls playsinline preload="metadata"></video>
 </body>
 </html>
