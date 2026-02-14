@@ -28,49 +28,31 @@
       display: block;
     }
 
-    #controls {
+    #playPauseIcon {
       position: fixed;
-      bottom: 30px;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 20px;
-      z-index: 10;
-      opacity: 0;
-      transition: opacity 0.4s ease;
-      pointer-events: none;
-    }
-
-    body.show-cursor #controls {
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    button {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      color: #fff;
-      padding: 16px 32px;
-      font-size: 18px;
-      font-weight: 600;
-      cursor: pointer;
-      border-radius: 12px;
+      transform: translate(-50%, -50%) scale(0);
+      width: 120px;
+      height: 120px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 3px solid rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
       backdrop-filter: blur(20px);
-      transition: all 0.3s ease;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+      z-index: 100;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
     }
 
-    button:hover {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15));
-      border-color: rgba(255, 255, 255, 0.5);
-      transform: translateY(-2px);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-    }
-
-    button:active {
-      transform: translateY(0);
+    #playPauseIcon.show {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
     }
 
     #saveIndicator {
@@ -112,11 +94,7 @@
 <body>
   <video id="player" playsinline preload="metadata"></video>
   
-  <div id="controls">
-    <button id="playPause">▶ Play</button>
-    <button id="fullscreen">⛶ Fullscreen</button>
-  </div>
-
+  <div id="playPauseIcon"></div>
   <div id="saveIndicator">Progress Saved</div>
   <div id="error" role="alert"></div>
 
@@ -124,15 +102,15 @@
     const candidates = ['M4V00943.MP4', 'M4V00943.mp4', 'movie.mp4'];
     const player = document.getElementById('player');
     const error = document.getElementById('error');
-    const playPauseBtn = document.getElementById('playPause');
-    const fullscreenBtn = document.getElementById('fullscreen');
     const saveIndicator = document.getElementById('saveIndicator');
+    const playPauseIcon = document.getElementById('playPauseIcon');
     
     const SAVE_KEY = 'video_progress_clair_obscur';
     let hideControlsTimeout;
     let saveTimeout;
+    let lastClickTime = 0;
 
-    // Show/hide cursor and controls on mouse movement
+    // Show/hide cursor on mouse movement
     document.addEventListener('mousemove', () => {
       document.body.classList.add('show-cursor');
       clearTimeout(hideControlsTimeout);
@@ -143,7 +121,7 @@
       }, 3000);
     });
 
-    // Always show controls when paused
+    // Always show cursor when paused
     player.addEventListener('pause', () => {
       document.body.classList.add('show-cursor');
       clearTimeout(hideControlsTimeout);
@@ -155,31 +133,53 @@
       }, 3000);
     });
 
-    // Play/Pause functionality
-    playPauseBtn.addEventListener('click', () => {
+    // Toggle play/pause function
+    function togglePlayPause() {
       if (player.paused) {
         player.play();
+        showPlayPauseIcon('▶');
       } else {
         player.pause();
+        showPlayPauseIcon('⏸');
+      }
+    }
+
+    // Show animated play/pause icon
+    function showPlayPauseIcon(icon) {
+      playPauseIcon.textContent = icon;
+      playPauseIcon.classList.add('show');
+      setTimeout(() => {
+        playPauseIcon.classList.remove('show');
+      }, 600);
+    }
+
+    // Keyboard controls - spacebar for play/pause
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        togglePlayPause();
       }
     });
 
-    // Update button text
-    player.addEventListener('play', () => {
-      playPauseBtn.innerHTML = '⏸ Pause';
-    });
-    
-    player.addEventListener('pause', () => {
-      playPauseBtn.innerHTML = '▶ Play';
-    });
-
-    // Fullscreen functionality
-    fullscreenBtn.addEventListener('click', () => {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
+    // Mouse controls
+    player.addEventListener('click', (e) => {
+      const now = Date.now();
+      const timeSinceLastClick = now - lastClickTime;
+      
+      // Double-click detection (within 300ms)
+      if (timeSinceLastClick < 300) {
+        // Double-click: toggle fullscreen
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen();
+        } else {
+          document.exitFullscreen();
+        }
       } else {
-        document.exitFullscreen();
+        // Single click: toggle play/pause
+        togglePlayPause();
       }
+      
+      lastClickTime = now;
     });
 
     // Save progress every 5 seconds
