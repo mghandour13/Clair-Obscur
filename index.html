@@ -99,7 +99,6 @@
   <div id="error" role="alert"></div>
 
   <script>
-    const candidates = ['M4V00943.MP4', 'M4V00943.mp4', 'movie.mp4'];
     const player = document.getElementById('player');
     const error = document.getElementById('error');
     const saveIndicator = document.getElementById('saveIndicator');
@@ -217,46 +216,42 @@
       }
     }
 
-    // Try to load video
-    const trySource = async (src) => {
-      player.src = src;
+    // Load video
+    async function loadVideo() {
+      player.src = 'Act1.webm';
       player.load();
-
-      await new Promise((resolve, reject) => {
-        const ok = () => {
+      
+      return new Promise((resolve, reject) => {
+        const onLoad = () => {
           cleanup();
           resolve();
         };
-        const fail = () => {
+        const onError = () => {
           cleanup();
-          reject(new Error('Failed to load'));
+          reject(new Error('Failed to load video'));
         };
         const cleanup = () => {
           clearTimeout(timeout);
-          player.removeEventListener('loadedmetadata', ok);
-          player.removeEventListener('error', fail);
+          player.removeEventListener('loadedmetadata', onLoad);
+          player.removeEventListener('error', onError);
         };
-        const timeout = setTimeout(fail, 6000);
-        player.addEventListener('loadedmetadata', ok, { once: true });
-        player.addEventListener('error', fail, { once: true });
+        const timeout = setTimeout(onError, 10000);
+        player.addEventListener('loadedmetadata', onLoad, { once: true });
+        player.addEventListener('error', onError, { once: true });
       });
-    };
+    }
 
+    // Initialize video player
     (async () => {
-      for (const src of candidates) {
-        try {
-          await trySource(src);
-          // Video loaded successfully - restore progress
-          restoreProgress();
-          return;
-        } catch (_) {
-          // try next source
-        }
+      try {
+        await loadVideo();
+        restoreProgress();
+      } catch (err) {
+        console.error('Failed to load video:', err);
+        player.style.display = 'none';
+        error.style.display = 'flex';
+        error.textContent = 'Video not found. Make sure Act1.webm is in the repository root and Git LFS is properly configured.';
       }
-
-      player.style.display = 'none';
-      error.style.display = 'flex';
-      error.textContent = 'Video not found. Put M4V00943.MP4 in the repository root and wait for GitHub Pages to redeploy.';
     })();
   </script>
 </body>
