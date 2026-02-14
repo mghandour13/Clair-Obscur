@@ -12,6 +12,7 @@
       background: #000;
       color: #fff;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      overflow: hidden;
     }
 
     video {
@@ -20,6 +21,38 @@
       object-fit: contain;
       background: #000;
       display: block;
+    }
+
+    #controls {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 15px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 10;
+    }
+
+    body:hover #controls {
+      opacity: 1;
+    }
+
+    button {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: #fff;
+      padding: 12px 24px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 6px;
+      backdrop-filter: blur(10px);
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: rgba(255, 255, 255, 0.3);
     }
 
     #error {
@@ -37,14 +70,47 @@
   </style>
 </head>
 <body>
-  <video id="player" controls playsinline preload="metadata"></video>
+  <video id="player" playsinline preload="metadata"></video>
+  
+  <div id="controls">
+    <button id="playPause">Play</button>
+    <button id="fullscreen">Fullscreen</button>
+  </div>
+
   <div id="error" role="alert"></div>
 
   <script>
     const candidates = ['M4V00943.MP4', 'M4V00943.mp4', 'movie.mp4'];
     const player = document.getElementById('player');
     const error = document.getElementById('error');
+    const playPauseBtn = document.getElementById('playPause');
+    const fullscreenBtn = document.getElementById('fullscreen');
 
+    // Play/Pause functionality
+    playPauseBtn.addEventListener('click', () => {
+      if (player.paused) {
+        player.play();
+        playPauseBtn.textContent = 'Pause';
+      } else {
+        player.pause();
+        playPauseBtn.textContent = 'Play';
+      }
+    });
+
+    // Fullscreen functionality
+    fullscreenBtn.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    });
+
+    // Update button text when video plays/pauses
+    player.addEventListener('play', () => playPauseBtn.textContent = 'Pause');
+    player.addEventListener('pause', () => playPauseBtn.textContent = 'Play');
+
+    // Try to load video
     const trySource = async (src) => {
       player.src = src;
       player.load();
@@ -84,6 +150,5 @@
       error.textContent = 'Video not found. Put M4V00943.MP4 in the repository root and wait for GitHub Pages to redeploy.';
     })();
   </script>
-  <video src="M4V00943.MP4" controls playsinline preload="metadata"></video>
 </body>
 </html>
