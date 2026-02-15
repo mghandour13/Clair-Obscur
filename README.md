@@ -1,7 +1,7 @@
 # Clair Obscur - No-Spoiler Video Experience
 
 A minimal, cinematic video player with no duration, no progress bar, and no scrubbing.
-Features seamless multi-part playback and a video game-style save system.
+Experience a 7-hour journey with the uncertainty of not knowing when it ends.
 
 ## Controls
 
@@ -32,29 +32,35 @@ ffmpeg -i Clair-Obscur-Movie.webm -ss 04:55:51 -t 01:05:19 -c copy Act2-2.webm
 ffmpeg -i Clair-Obscur-Movie.webm -ss 06:01:10 -c copy Act3.webm
 ```
 
-### 2. Upload to GitHub
+### 2. Create a GitHub Release
 
-Place all 4 video files in your repository root:
-- `Act1.webm`
-- `Act2-1.webm`
-- `Act2-2.webm`
-- `Act3.webm`
+1. Go to your repository on GitHub
+2. Click **Releases** → **Create a new release**
+3. Tag: `v1.0`
+4. Title: `Clair Obscur Video Files`
+5. Upload all 4 video files:
+   - `Act1.webm`
+   - `Act2-1.webm`
+   - `Act2-2.webm`
+   - `Act3.webm`
+6. Click **Publish release**
 
-Use **Git LFS** for large files:
-```bash
-git lfs install
-git lfs track "*.webm"
-git add .gitattributes
-git add Act1.webm Act2-1.webm Act2-2.webm Act3.webm
-git commit -m "Add video parts with LFS"
-git push
-```
+### 3. Update index.html with Release URLs
 
-### 3. Enable GitHub Pages
+After publishing, get the direct download links for each file (right-click → copy link):
+- `https://github.com/YOUR-USERNAME/YOUR-REPO/releases/download/v1.0/Act1.webm`
+- And so on for the other acts
 
-1. Go to **Settings → Pages**
-2. Set source to your deploy branch and folder `/ (root)`
-3. Open your Pages URL and hard-refresh once (`Ctrl+Shift+R`)
+Update the video URLs in `index.html` accordingly.
+
+### 4. Enable GitHub Pages
+
+1. Make sure your repository is **Public** (Settings → Change visibility)
+2. Go to **Settings → Pages**
+3. Set source to your deploy branch and folder `/ (root)`
+4. Click **Save**
+5. Wait 2-3 minutes for deployment
+6. Visit your Pages URL: `https://YOUR-USERNAME.github.io/YOUR-REPO/`
 
 ## Features
 
@@ -67,10 +73,15 @@ git push
 
 The viewer will never know there are multiple parts — it plays as one continuous video!
 
-## If it still does not play
+## Troubleshooting
 
-- Confirm all 4 files exist in the same branch selected in Pages settings
-- Wait 1-2 minutes for Pages deployment after pushing
-- Verify Git LFS is properly tracking the .webm files
-- Check exact filename casing: `Act1.webm`, `Act2-1.webm`, `Act2-2.webm`, `Act3.webm`
-- Try a hard refresh: `Ctrl+Shift+R` (Windows) or `Cmd+Shift+R` (Mac)
+**If the video doesn't load:**
+- Repository must be **Public** for GitHub Releases to be accessible
+- Hard refresh the page: `Cmd+Shift+R` (Mac) or `Ctrl+Shift+R` (Windows)
+- Check browser console (F12) for errors
+- Verify release files are accessible by visiting the direct URLs
+
+**Why GitHub Releases instead of Git LFS?**
+- GitHub Pages doesn't serve Git LFS files properly (only serves pointer files)
+- GitHub Releases can host files up to 2GB each and stream them directly
+- More reliable for video playback
