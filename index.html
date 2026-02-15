@@ -218,7 +218,7 @@
 
     // Load video
     async function loadVideo() {
-      player.src = 'Act1.webm';
+      player.src = 'https://github.com/mghandour13/Clair-Obscur/releases/download/v1.0/Act1.webm';
       player.load();
       
       return new Promise((resolve, reject) => {
@@ -250,7 +250,7 @@
         console.error('Failed to load video:', err);
         player.style.display = 'none';
         error.style.display = 'flex';
-        error.textContent = 'Video not found. Make sure Act1.webm is in the repository root and Git LFS is properly configured.';
+        error.textContent = 'Video not found. Please check your internet connection and try refreshing the page.';
       }
     })();
   </script>
